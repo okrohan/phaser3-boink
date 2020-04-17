@@ -10,8 +10,8 @@
     "phaser": "^3.22.0"
   },
   "scripts": {
-    "build": "webpack --config webpack.config.prod.js",
-    "dev": "webpack-dev-server"
+    "build": "rm -rf dist && webpack --config webpack.config.prod.js --progress",
+    "dev": "webpack-dev-server --config webpack.config.js --progress"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^5.1.1",
@@ -19,7 +19,6 @@
     "typescript": "^3.8.3",
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.10.3",
-    "brotli-webpack-plugin": "^1.1.0"
+    "webpack-dev-server": "^3.10.3"
   }
 }

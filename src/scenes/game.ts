@@ -1,24 +1,17 @@
-import {Types, Scene,Physics } from 'phaser'
-const sceneConfig: Types.Scenes.SettingsConfig = {
+const MAX_VELOCITY = 250
+const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
     active: false,
     visible: false,
     key: 'Game',
 };
 
-const debounce = (callback, wait) => {
-    let timeout = null
-    return (...args) => {
-        const next = () => callback(...args)
-        clearTimeout(timeout)
-        timeout = setTimeout(next, wait)
-    }
-}
 
-
-export class GameScene extends Scene {
-    private player: Physics.Arcade.Sprite;
-    private cursors: Types.Input.Keyboard.CursorKeys;
+export class GameScene extends Phaser.Scene {
+    private player: Phaser.Physics.Arcade.Sprite;
+    private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+    private platforms: any
     private isOnGround: number;
+
     constructor() {
         super(sceneConfig);
     }
@@ -28,49 +21,65 @@ export class GameScene extends Scene {
         this.load.image('player', 'assets/ball.png', )
         this.load.image('ground', 'assets/ground_block.png', )
     }
+    
+    private createPlayer(){
+        this.player = this.physics.add.sprite(50, 50, 'player', null).setScale(0.2, 0.2)
+        this.player.setCollideWorldBounds(true)
+        this.player.setBounce(1, 0.4)
+        this.player.setMaxVelocity(250)
+        this.physics.add.collider(this.player, this.platforms, this.handleGroundCollide);
+    }
+
+    private createLevel(){
+        var platforms = this.physics.add.staticGroup();
+        platforms.create(400, 568, 'ground').setScale(0.2).refreshBody();
+        platforms.create(600, 400, 'ground').setScale(0.2).refreshBody();
+        platforms.create(50, 250, 'ground').setScale(0.2).refreshBody();
+        platforms.create(750, 220, 'ground').setScale(0.2).refreshBody();
+        this.platforms = platforms
+
+    }
+
+    public create() {
+        this.cursors = this.input.keyboard.createCursorKeys()
+        this.createLevel()
+        this.createPlayer()
+    }
+
 
     private handleGroundCollide = () => {
         this.isOnGround = 0
     }
 
-    public create() {
-        this.player = this.physics.add.sprite(50,50, 'player', null).setScale(0.2, 0.2)
-        this.player.setCollideWorldBounds(true)
-        var platforms = this.physics.add.staticGroup();
-        // platforms.createFromConfig()
-        platforms.create(400, 568, 'ground').setScale(0.2).refreshBody();
-        platforms.create(600, 400, 'ground').setScale(0.2).refreshBody();
-        platforms.create(50, 250, 'ground').setScale(0.2).refreshBody();
-        platforms.create(750, 220, 'ground').setScale(0.2).refreshBody();
-        this.player.setBounce(1,0.4)
-        this.physics.add.collider(this.player, platforms, this.handleGroundCollide);
-        this.cursors = this.input.keyboard.createCursorKeys()
+    private handleMovement() {
 
-    }
-    public update() {
         const cursors = this.cursors
-        this.isOnGround && console.log(this.player.body.velocity)
-        if(cursors.up.isDown && !this.isOnGround)
-        {
+        if (cursors.up.isDown && !this.isOnGround) {
             this.player.setVelocityY(-200)
             this.isOnGround = 1
-            console.log('JUMP')
         }
-        if(cursors.up.isDown && this.isOnGround < 2 && this.player.body.velocity.y > 0)
-        {
-            console.log('JUMP2')
+        if (cursors.up.isDown && this.isOnGround < 2 && this.player.body.velocity.y > 0) {
             this.player.setVelocityY(-200)
             this.isOnGround = 2
         }
-        if(cursors.left.isDown)
-            this.player.setVelocityX(-200)
-        else if(cursors.right.isDown)
-            this.player.setVelocityX(200)
-        else
+        if (cursors.left.isDown){
+            this.player.setAccelerationX(-500)
+            this.player.setAngularVelocity(-500)
+        }
+        else if (cursors.right.isDown){
+            this.player.setAccelerationX(500)
+            this.player.setAngularVelocity(500)
+        }   
+        else {
             this.player.setVelocityX(0)
+            this.player.setAccelerationX(0)
+            this.player.setAngularVelocity(0)
+        }
+            
+    }
 
-
-
+    public update() {
+        this.handleMovement()
     }
 
 }

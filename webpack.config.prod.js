@@ -1,7 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-// const BrotliPlugin = require('brotli-webpack-plugin')
 
 module.exports = {
   entry: {
@@ -38,8 +37,8 @@ module.exports = {
         to: path.resolve(__dirname, 'dist')
       },
       {
-        from: path.resolve(__dirname, 'assets', '*'),
-        to: path.resolve(__dirname, 'dist' )
+        from: path.resolve(__dirname, 'assets'),
+        to: path.resolve(__dirname, 'dist/assets' )
       }
     ],
     ),

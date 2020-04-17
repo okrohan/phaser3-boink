@@ -1,9 +1,9 @@
-import  { Game,Types, AUTO} from 'phaser'
+import  * as Phaser from 'phaser'
 import {GameScene} from "./scenes/game";
 
-const gameConfig: Types.Core.GameConfig = {
+const gameConfig: Phaser.Types.Core.GameConfig = {
   title: 'Sample',
-  type: AUTO,
+  type: Phaser.AUTO,
   scene:GameScene,
   physics: {
     default: 'arcade',
@@ -16,4 +16,4 @@ const gameConfig: Types.Core.GameConfig = {
   backgroundColor: '#5ad7ff',
 };
  
-export const game = new Game(gameConfig);
+export const game = new Phaser.Game(gameConfig);
