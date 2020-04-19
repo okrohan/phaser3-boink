@@ -1,3 +1,4 @@
+export const GAME_HEIGHT = 600
 export const ASSET_WIDTH = {
     TINY: 150,
     SMALL: 300,

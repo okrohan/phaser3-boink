@@ -1,13 +1,16 @@
-import level from './levels/level1';
 import { ASSETS_NAMES, ASSET_WIDTH_MAPPING } from '../constants';
+import { getLevel } from './levels';
+
+
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
-    active: false,
-    visible: false,
-    key: 'Game',
+    active: true,
+    visible: true,
+    key: 'GameScene',
 };
 
 
 export class GameScene extends Phaser.Scene {
+    private levelLayout: any
     private player: Phaser.Physics.Arcade.Sprite;
     private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
     private platforms: any
@@ -18,6 +21,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     public preload() {
+        this.levelLayout = getLevel()
         this.load.image('player', 'assets/ball.png', )
         Object.values(ASSETS_NAMES.GROUND).forEach((key: string) => {
             this.load.spritesheet(key, 'assets/ground_block.png', { frameWidth: ASSET_WIDTH_MAPPING.GROUND[key] })
@@ -32,7 +36,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     private createPlayer(){
-        this.player = this.physics.add.sprite(level.playerStart.x, level.playerStart.y, 'player', null).setScale(0.2, 0.2)
+        this.player = this.physics.add.sprite(this.levelLayout.playerStart.x, this.levelLayout.playerStart.y, 'player', null).setScale(0.2, 0.2)
         this.player.setCollideWorldBounds(true)
         
         this.player.setBounce(1, 0.4)
@@ -46,7 +50,7 @@ export class GameScene extends Phaser.Scene {
 
     private createLevel(){
         var platforms = this.physics.add.staticGroup();
-        level.sprites.forEach((item) => {
+        this.levelLayout.sprites.forEach((item) => {
             const { x, y, key, scale } = item;
             platforms.create(x, y, key).setScale(scale || 0.2 ).refreshBody()
         })
@@ -54,8 +58,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     public create() {
-        this.cameras.main.setBounds(0, 0, level.width, level.height);
-        this.physics.world.setBounds(0, 0, level.width, level.height );
+        console.log(this.scale.height)
+        this.cameras.main.setBounds(0, 0, this.levelLayout.width, this.scale.height);
+        this.physics.world.setBounds(0, 0, this.levelLayout.width, this.scale.height );
         this.cursors = this.input.keyboard.createCursorKeys()
         this.createLevel()
         this.createPlayer()
