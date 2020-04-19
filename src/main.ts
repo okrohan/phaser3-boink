@@ -7,10 +7,10 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
   scene:GameScene,
   scale: {
     mode: Phaser.Scale.FIT,
-    parent: 'phaser-example',
+    parent: 'content',
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: 800,
-    height: 600
+    width: 1024,
+    height: 600,
   },
   physics: {
     default: 'arcade',
@@ -20,7 +20,7 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
     },
   },
   parent: 'game',
-  backgroundColor: '#5ad7ff',
+  backgroundColor: '#7dd7fb',
 };
  
 export const game = new Phaser.Game(gameConfig);
