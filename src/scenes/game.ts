@@ -1,4 +1,5 @@
-const MAX_VELOCITY = 250
+import level from './levels/level1';
+import { ASSETS_NAMES, ASSET_WIDTH_MAPPING } from '../constants';
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
     active: false,
     visible: false,
@@ -16,34 +17,58 @@ export class GameScene extends Phaser.Scene {
         super(sceneConfig);
     }
 
-
     public preload() {
         this.load.image('player', 'assets/ball.png', )
-        this.load.image('ground', 'assets/ground_block.png', )
+        Object.values(ASSETS_NAMES.GROUND).forEach((key: string) => {
+            this.load.spritesheet(key, 'assets/ground_block.png', { frameWidth: ASSET_WIDTH_MAPPING.GROUND[key] })
+        })        
     }
-    
+
+    private handleWorldCollision = () => {        
+        if(this.player.body.blocked.down){
+            alert('LOSER!')
+            this.scene.start()
+        }
+    }
+
     private createPlayer(){
-        this.player = this.physics.add.sprite(50, 50, 'player', null).setScale(0.2, 0.2)
+        this.player = this.physics.add.sprite(level.playerStart.x, level.playerStart.y, 'player', null).setScale(0.2, 0.2)
         this.player.setCollideWorldBounds(true)
+        
         this.player.setBounce(1, 0.4)
         this.player.setMaxVelocity(250)
         this.physics.add.collider(this.player, this.platforms, this.handleGroundCollide);
+        // @ts-ignore
+        this.player.body.onWorldBounds = true
+        this.physics.world.on('worldbounds', this.handleWorldCollision)
+
     }
 
     private createLevel(){
         var platforms = this.physics.add.staticGroup();
-        platforms.create(400, 568, 'ground').setScale(0.2).refreshBody();
-        platforms.create(600, 400, 'ground').setScale(0.2).refreshBody();
-        platforms.create(50, 250, 'ground').setScale(0.2).refreshBody();
-        platforms.create(750, 220, 'ground').setScale(0.2).refreshBody();
+        level.sprites.forEach((item) => {
+            const { x, y, key, scale } = item;
+            platforms.create(x, y, key).setScale(scale || 0.2 ).refreshBody()
+        })
         this.platforms = platforms
-
     }
 
     public create() {
+        this.cameras.main.setBounds(0, 0, level.width, level.height);
+        this.physics.world.setBounds(0, 0, level.width, level.height );
         this.cursors = this.input.keyboard.createCursorKeys()
         this.createLevel()
         this.createPlayer()
+        this.cameras.main.startFollow(this.player, true, 1, 1); 
+        alert(`
+        Hii I am Ballsy. 
+        My world was taken by evil people that took all our Good Stuff away.
+        No am on a mission to recollect them and Kill evil people. 
+        Why you ask? Cuz I'm pretty BALLSY!
+        
+        Controls: UP/DOWN/LEFT/RIGHT Arrows
+        `)       
+
     }
 
 
@@ -52,8 +77,8 @@ export class GameScene extends Phaser.Scene {
     }
 
     private handleMovement() {
-
         const cursors = this.cursors
+        // TODO: Simplify
         if (cursors.up.isDown && !this.isOnGround) {
             this.player.setVelocityY(-200)
             this.isOnGround = 1
@@ -70,10 +95,13 @@ export class GameScene extends Phaser.Scene {
             this.player.setAccelerationX(500)
             this.player.setAngularVelocity(500)
         }   
+        else if (!this.isOnGround){
+                this.player.setVelocityX(0)
+                this.player.setAccelerationX(0)
+                this.player.setAngularVelocity(0)
+        }
         else {
-            this.player.setVelocityX(0)
             this.player.setAccelerationX(0)
-            this.player.setAngularVelocity(0)
         }
             
     }
