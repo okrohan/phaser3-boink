@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "rm -rf dist && webpack --config webpack.config.prod.js --progress",
-    "dev": "webpack-dev-server --config webpack.config.js --progress"
+    "dev": "rm -rf node_modules/.cache && webpack-dev-server --config webpack.config.js --progress"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^5.1.1",

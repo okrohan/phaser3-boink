@@ -64,8 +64,7 @@ export class GameScene extends Phaser.Scene {
         Hii I am Ballsy. 
         My world was taken by evil people that took all our Good Stuff away.
         No am on a mission to recollect them and Kill evil people. 
-        Why you ask? Cuz I'm pretty BALLSY!
-        
+        Why you ask? Cuz I'm pretty BALLSY!        
         Controls: UP/DOWN/LEFT/RIGHT Arrows
         `)       
 
