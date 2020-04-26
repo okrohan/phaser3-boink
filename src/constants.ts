@@ -1,4 +1,11 @@
 export const GAME_HEIGHT = 600
+
+export const PLAYER = {
+    MAX_VELOCITY : 500,
+    ANGULAR_ACC: 500,
+    ACCELERATION: 500,
+    VELOCITY_Y: -800
+}
 export const ASSET_WIDTH = {
     TINY: 150,
     SMALL: 300,

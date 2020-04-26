@@ -3,11 +3,11 @@ import { ASSETS_NAMES } from "../../constants";
 const {GROUND} = ASSETS_NAMES
 
 export default {
-    width: 2000,
+    width: 5000,
     height: 768,
     playerStart: {
         x: 50,
-        y: 200
+        y: 250
     },
     sprites: [
         {
@@ -22,7 +22,12 @@ export default {
             key: GROUND.LARGE,
             scale: 0.2,
         },
-        
+        {
+            x: 130,
+            y: 400,
+            key: GROUND.SMALL,
+            scale: 0.2,
+        },
         {
             x: 1200,
             y: 500,
@@ -44,7 +49,6 @@ export default {
             x: 1500,
             y: 300,
             key: GROUND.OOH_BOI,
-    
         }
 ]
 }
