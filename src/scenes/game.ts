@@ -14,96 +14,127 @@ export class GameScene extends Phaser.Scene {
     private player: Phaser.Physics.Arcade.Sprite;
     private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
     private platforms: any
-    private isOnGround: number;
+    private gameState: any = {
+        gameStarted : false,
+        playerOnGround: 0,
+        timeText: null,
+        livesText: null,
+    }
 
     constructor() {
         super(sceneConfig);
+        this.gameState = {
+            gameStarted: false,
+            playerOnGround: 0,
+            timeText: null,
+            livesText: null,
+        }
     }
 
     public preload() {
         this.levelLayout = getLevel()
-        this.load.image('player', 'assets/ball.png', )
-        this.load.image('ground_block_raw', 'assets/ground_block.png')
-        this.load.image('spike_monster_1', 'assets/spike_monster_1.png')
-        this.load.image('spike_monster_2', 'assets/spike_monster_2.png')
-        this.load.image('spike', 'assets/spike.png')
-        this.load.image('spiket', 'assets/test_spike.png')
-        this.load.image('dog', 'assets/dog.png')
-        this.load.image('star', 'assets/star.png')
+        Object.keys(ASSETS_NAMES).forEach((item) => 
+            this.load.image(item.toLowerCase(), `assets/${item.toLowerCase()}.png`)
+        )
         Object.values(ASSETS_NAMES.GROUND).forEach((key: string) => {
-            this.load.spritesheet(key, 'assets/ground_block.png', { frameWidth: ASSET_WIDTH_MAPPING.GROUND[key] })
+            ASSET_WIDTH_MAPPING.GROUND[key] && this.load.spritesheet(key, `assets/${ASSETS_NAMES.GROUND.GROUND}.png`, { frameWidth: ASSET_WIDTH_MAPPING.GROUND[key] })
         })
     }
 
     private handleWorldCollision = () => {        
         if(this.player.body.blocked.down){
-            this.scene.restart()
+            this.handleDeath()
+            
         }
     }
 
-    private createPlayer(){
-        this.player = this.physics.add.sprite(this.levelLayout.playerStart.x, this.levelLayout.playerStart.y, 'player', null).setScale(0.25)
-        this.player.setCollideWorldBounds(true)
+    private handleDeath = () => {
+        this.gameState = {}
+        // this.cameras.main.scrollY(300)
+        this.cameras.main.shake(300, 0.05, true, (_cam, prog) => {prog === 1 && this.scene.restart()
+            console.log(prog)
+        })
+        // this.scene.restart()
+    }
 
+    private createPlayer(){
+        this.player = this.physics.add.sprite(this.levelLayout.playerStart.x, this.levelLayout.playerStart.y, ASSETS_NAMES.PLAYER, null).setScale(0.25)
+        this.player.setCollideWorldBounds(true)
         this.player.setBounce(1, 0.4)
         this.player.setMaxVelocity(250)
-        const tileSprite = this.add.tileSprite(50, 600 - 50, this.levelLayout.width, 150, 'ground_block_raw')
-        this.physics.add.existing(tileSprite, true)
-        this.physics.add.collider(this.player, tileSprite, this.handleGroundCollide);
-        this.physics.add.collider(this.player, this.platforms, this.handleGroundCollide);
-        
-        // @ts-ignore
-        this.player.body.onWorldBounds = true
-        this.physics.world.on('worldbounds', this.handleWorldCollision)
-        this.add.sprite(300, 450, 'star', null).setScale(0.16)
-        this.add.sprite(500, 450, 'dog', null).setScale(0.6)
-        this.add.sprite(700, 450, 'dog', null).setScale(0.6)
-        this.add.sprite(750, 450, 'spike', null).setScale(0.2)
-        this.add.sprite(800, 450, 'star', null).setScale(0.15)
-
     }
 
     private createLevel(){
-        var platforms = this.physics.add.staticGroup();
-        this.levelLayout.sprites.forEach((item) => {
+        // Platforms
+        const platforms = this.physics.add.staticGroup();
+        this.levelLayout.platforms.forEach((item) => {
             const { x, y, key, scale } = item;
             platforms.create(x, y, key).setScale(scale || 0.2 ).refreshBody()
         })
+        this.levelLayout.tiles.forEach(({x, x2, y, height = 150}) => 
+            platforms.add(this.add.tileSprite(x, y, x2 - x, height, ASSETS_NAMES.GROUND.GROUND))
+        ) 
         this.platforms = platforms
     }
 
+    
+    private initPlayerInteractors(){
+        // Text
+        const texts = [
+        this.add.text(50, 50, 'BOiNK!', { fontSize: 72, fontStyle: 'bold', stroke: 'black', strokeThickness: 5, fill: 'white' }),
+        this.add.text(50, 130, 'Controls: ⬅[Left]  ➡[Right]  ⬆[Up]  ⬇[Down]', { fontSize: 24, fontStyle: 'bold', stroke: 'black', strokeThickness: 2, fill: 'white' }),
+        this.add.text(50, 160, 'Press \'Space\' to Start ', { fontSize: 24, fontStyle: 'bold', stroke: 'black', strokeThickness: 2, fill: 'white' })
+        ]
+        // Collisions
+        // @ts-ignore
+        this.player.body.onWorldBounds = true
+        this.physics.world.on('worldbounds', this.handleWorldCollision)
+        this.physics.add.collider(this.player, this.platforms, this.handleGroundCollide);
+        // Camera
+        this.cameras.main.startFollow(this.player, true, 1, 1);
+        // Cursors
+        this.cursors.space.addListener('up',() => {
+            console.log('starting game')
+            this.gameState.gameStarted = new Date()
+            texts.forEach((text) => text.destroy())
+            this.gameState.timeText = this.add.text(window.innerWidth - 100, 50, this.getTimeText(), { fontSize: 20, fontStyle: 'bold', stroke: 'black', strokeThickness: 2, fill: 'white' }).setScrollFactor(0)
+            this.gameState.livesText = this.add.text(window.innerWidth - 100, 20, '❤ 3', { fontSize: 20, fontStyle: 'bold', stroke: 'black', strokeThickness: 2, fill: 'white' }).setScrollFactor(0)
+            this.cursors.space.removeListener('up')
+        })
+    }
+
     public create() {
-        console.log(this.scale.height)
         this.cameras.main.setBounds(0, 0, this.levelLayout.width, this.scale.height);
         this.physics.world.setBounds(0, 0, this.levelLayout.width, this.scale.height );
-
         this.cursors = this.input.keyboard.createCursorKeys()
         this.createLevel()
         this.createPlayer()
-        this.cameras.main.startFollow(this.player, true, 1, 1); 
-        alert(`
-        GAME IS STILL IN DEVELOPMENT \n
-        Controls: UP/DOWN/LEFT/RIGHT Arrows
-        `)       
-
+        this.initPlayerInteractors()   
     }
 
 
     private handleGroundCollide = () => {
-        this.isOnGround = 0
+        this.gameState.playerOnGround = 0
+    }
+    
+    private getTimeText() {
+        //@ts-ignore
+        const diff = getLevel().time - (new Date(new Date() - this.gameState.gameStarted).getSeconds())
+        //@ts-ignore
+        return `${parseInt(diff / 60)}:${diff%60}`
     }
 
     private handleMovement() {
         const cursors = this.cursors
         // TODO: Simplify
         
-        if (cursors.up.isDown && !this.isOnGround) {            
+        if (cursors.up.isDown && !this.gameState.playerOnGround) {            
             this.player.setVelocityY(PLAYER.VELOCITY_Y)
-            this.isOnGround = 1
+            this.gameState.playerOnGround = 1
         }
-        if (cursors.up.isDown && this.isOnGround < 2 && this.player.body.velocity.y > 0) {
+        if (cursors.up.isDown && this.gameState.playerOnGround < 2 && this.player.body.velocity.y > 0) {
             this.player.setVelocityY(PLAYER.VELOCITY_Y)
-            this.isOnGround = 2
+            this.gameState.playerOnGround = 2
         }
         if (cursors.left.isDown){
             this.player.setAccelerationX(-PLAYER.ACCELERATION)
@@ -113,7 +144,7 @@ export class GameScene extends Phaser.Scene {
             this.player.setAccelerationX(PLAYER.ACCELERATION)
             this.player.setAngularVelocity(PLAYER.ANGULAR_ACC)
         }   
-        else if (!this.isOnGround){
+        else if (!this.gameState.playerOnGround){
                 this.player.setVelocityX(0)
                 this.player.setAccelerationX(0)
                 this.player.setAngularVelocity(0)
@@ -125,7 +156,10 @@ export class GameScene extends Phaser.Scene {
     }
 
     public update() {
+        if(this.gameState.gameStarted) {
         this.handleMovement()
+        this.gameState.timeText.setText(this.getTimeText())
+        }
     }
 
 }

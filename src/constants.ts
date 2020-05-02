@@ -16,14 +16,18 @@ export const ASSET_WIDTH = {
 
 export  const ASSETS_NAMES = {
     GROUND: {
+        GROUND: 'ground',
         TINY: 'ground_tiny',
         SMALL: 'ground_small',
         MEDIUM: 'ground_medium',
         LARGE: 'ground_large',
         OOH_BOI: 'ground_ohh_boi'
-    }
+    },
+    PLAYER: 'player',
+    SPIKE: 'spike',
+    SHIBA: 'shiba',
+    STAR: 'star',
 }
-
 export const ASSET_WIDTH_MAPPING = {
     GROUND : {
         [ASSETS_NAMES.GROUND.TINY]: ASSET_WIDTH.TINY,

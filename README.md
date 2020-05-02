@@ -1,7 +1,7 @@
-# phaser3-bounce
-Phaser3 adaptation of Classic Bounce game
-
+# BOiNK [Powered by Phaser3]
 
 #### Credits
+MS-Paint :P
+
 Assets:
-- Enemies Pack:  https://opengameart.org/content/bevouliin-free-ingame-items-spike-monsters
+- Icons made by <a href="https://www.flaticon.com/authors/monkik" title="monkik">monkik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
