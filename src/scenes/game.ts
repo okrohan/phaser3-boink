@@ -32,6 +32,25 @@ export class GameScene extends Phaser.Scene {
     }
 
     public preload() {
+        const progress = this.add.graphics();
+        const progressText = this.add.text(window.innerWidth/2,290, 'Loading...').setFontSize(32).setFill('white')
+
+        this.load.on('progress', function (value) {
+            progress.clear();
+            progress.fillStyle(0xffffff, 1);
+            progress.fillRect(0, 270, window.innerWidth * value, 60);
+            if(value > 0.5){
+                progressText.setFill('black')
+            }
+            // @ts-ignore
+            progressText.setText(parseInt(value*100)+ "%")
+        });
+
+        this.load.on('complete', function () {
+            progress.destroy();
+            progressText.destroy()
+        });
+
         this.levelLayout = getLevel()
         Object.keys(ASSETS_NAMES).forEach((item) => 
             this.load.image(item.toLowerCase(), `assets/${item.toLowerCase()}.png`)
@@ -39,6 +58,7 @@ export class GameScene extends Phaser.Scene {
         Object.values(ASSETS_NAMES.GROUND).forEach((key: string) => {
             ASSET_WIDTH_MAPPING.GROUND[key] && this.load.spritesheet(key, `assets/${ASSETS_NAMES.GROUND.GROUND}.png`, { frameWidth: ASSET_WIDTH_MAPPING.GROUND[key] })
         })
+        this.load.audio('background_music', 'assets/background_music.mp3')
     }
 
     private handleWorldCollision = () => {        
@@ -53,6 +73,7 @@ export class GameScene extends Phaser.Scene {
         // this.cameras.main.scrollY(300)
         this.cameras.main.shake(300, 0.05, true, (_cam, prog) => {prog === 1 && this.scene.restart()
             console.log(prog)
+            this.sound.stopAll()
         })
         // this.scene.restart()
     }
@@ -93,12 +114,14 @@ export class GameScene extends Phaser.Scene {
         // Camera
         this.cameras.main.startFollow(this.player, true, 1, 1);
         // Cursors
+        
         this.cursors.space.addListener('up',() => {
             console.log('starting game')
             this.gameState.gameStarted = new Date()
             texts.forEach((text) => text.destroy())
             this.gameState.timeText = this.add.text(window.innerWidth - 100, 50, this.getTimeText(), { fontSize: 20, fontStyle: 'bold', stroke: 'black', strokeThickness: 2, fill: 'white' }).setScrollFactor(0)
             this.gameState.livesText = this.add.text(window.innerWidth - 100, 20, '❤ 3', { fontSize: 20, fontStyle: 'bold', stroke: 'black', strokeThickness: 2, fill: 'white' }).setScrollFactor(0)
+            this.sound.play('background_music', {loop: true, volume: 0.5})
             this.cursors.space.removeListener('up')
         })
     }
