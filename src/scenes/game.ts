@@ -68,15 +68,7 @@ export class GameScene extends Phaser.Scene {
             this.handleDeath()
         }
     }
-
-    private handleCollectableWorldCollision = (item) => {
-        // @ts-ignore
-        // this.player.body.onWorldBounds = true
-        // this.physics.world.on('worldbounds', this.handleWorldCollision)
-        const foundItem = this.collectables.find(cur => cur === item)
-        foundItem && foundItem.destroy()
-    }
-
+    
     private handleDeath = () => {
         this.gameState = {}
         this.cameras.main.shake(300, 0.05, true, (_cam, prog) => {

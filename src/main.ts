@@ -1,10 +1,11 @@
 import  * as Phaser from 'phaser'
 import {GameScene} from "./scenes/game";
+import { GameEditorScene } from './scenes/gameEditor';
 
 const gameConfig: Phaser.Types.Core.GameConfig = {
   title: 'Sample',
   type: Phaser.AUTO,
-  scene:GameScene,
+  scene: location.href.includes('editor')? GameEditorScene : GameScene,
 
   scale: {
     mode: Phaser.Scale.FIT,
@@ -15,7 +16,6 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
   },
   physics: {
     default: 'arcade',
-
     arcade: {
       debug: location.href.includes('debug'),
       gravity: {y: 300}
