@@ -6,9 +6,14 @@ export default {
     width: 5000,
     height: 768,
     time: 300,
+    minScore: 1,
     playerStart: {
         x: 50,
         y: 250
+    },
+    finish: {
+        x: 1900,
+        y: 600
     },
     platforms: [
         {
@@ -21,7 +26,7 @@ export default {
             x: 900,
             y: 300,
             key: GROUND.TINY,
-            scale: 0.2,
+            
         },
         {
             x: 1200,
@@ -48,11 +53,28 @@ tiles: [
         key: GROUND.GROUND
     },
 ],
-thingsThatHurt: [
+enemies: [
+    {
+        x: 300,
+        y: 300,
+        key: ASSETS_NAMES.SHIBA,
+    },
     {
         x: 1500,
         y: 300,
-        key: GROUND.OOH_BOI,
-    }
-]
+        key: ASSETS_NAMES.SPIKE,
+    },
+],
+    collectables: [
+        {
+            x: 500,
+            y: 500,
+            key: ASSETS_NAMES.STAR
+        },
+        {
+            x: 1300,
+            y: 600,
+            key: ASSETS_NAMES.STAR
+        }
+    ]
 }
