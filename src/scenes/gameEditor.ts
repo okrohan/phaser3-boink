@@ -37,16 +37,14 @@ export class GameEditorScene extends AbstractScene {
         this.levelLayout = { ...initLevelLayout}
         this.editorState = {
             activeOption: 0,
-            activeCursor: 0
+            activeCursor: Phaser.GameObjects.Sprite
         }
         this.sprites = []
-        console.log(allowedSprites)
     }
 
     refreshAlphas(){
-        const activeIndex = this.editorState.activeCursor
-        this.sprites.forEach((sprite, index) => {
-            if(index === activeIndex)
+        this.sprites.forEach((sprite) => {
+            if (sprite === this.editorState.activeCursor)
             sprite.setAlpha(1)
             else
             sprite.setAlpha(0.5)
@@ -54,97 +52,56 @@ export class GameEditorScene extends AbstractScene {
     }
 
     updateOptionSelection(index:number){
-        this.editorState.activeOption = index
-        this.selectionText.setText(`${allowedSprites[this.editorState.activeOption]}`).setFontSize(24)
+        allowedSprites[this.editorState.activeOption + index] && (this.editorState.activeOption += index)
+        this.selectionText.setText(`Click to Add: ${allowedSprites[this.editorState.activeOption]}`).setFontSize(16)
     }
 
-    updateSpriteSelection(index: number){
-        console.log(index)
-        this.editorState.activeCursor = index
+    updateSpriteSelection(sprite: Phaser.GameObjects.Sprite){
+        if (sprite === this.editorState.activeCursor){
+            this.editorState.activeCursor = null    
+            this.cameras.main.stopFollow()
+        }
+        else {
+            this.editorState.activeCursor = sprite
+            sprite &&  this.cameras.main.startFollow(sprite,false,1,1,200,200)   
+        }
+            
         this.refreshAlphas()
     }
 
     createSprite({x,y,key},force = false){
         if(restrictedSprites.includes(key) && !force)
         return
-        console.log('creatin sprite')
-        this.sprites.push(this.add.sprite(x,y,key).setScale(ASSET_SCALE_MAPPING[key] || 1))
-        this.updateSpriteSelection(this.sprites.length -1)
+        const sprite = this.add.sprite(x, y, key).setScale(ASSET_SCALE_MAPPING[key] || 1).setInteractive()
+        sprite.on('pointerdown', () => this.updateSpriteSelection(sprite))
+        this.sprites.push(sprite)
+        return sprite
     }
 
-    handleRightKey =() =>{
-        if(this.cursors.shift.isDown){
-            let updated = this.editorState.activeCursor + 1
-            updated = updated > this.sprites.length - 1 ? 0 : updated
-            this.updateSpriteSelection(updated)
-        }else {
-            const currentSprite = this.sprites[this.editorState.activeCursor]
-            currentSprite.setX(currentSprite.x + SCROLL_FACTOR)
-        }
-    }
-
-    handleLeftKey =() => {
-        if (this.cursors.shift.isDown) {
-            let updated = this.editorState.activeCursor - 1
-            updated = updated < 0 ? this.sprites.length - 1 : updated
-            this.updateSpriteSelection(updated)
-        } else {
-            const currentSprite = this.sprites[this.editorState.activeCursor]
-            currentSprite.setX(currentSprite.x - SCROLL_FACTOR)
-        }
-    }
-
-    handleUpKey = () => {
-        if (this.cursors.shift.isDown) {
-            let updated = this.editorState.activeOption - 1
-            updated = updated < 0 ? allowedSprites.length - 1 : updated
-            this.updateOptionSelection(updated)
-        } else {
-            const currentSprite = this.sprites[this.editorState.activeCursor]
-            currentSprite.setY(currentSprite.y - SCROLL_FACTOR)
-        }
-    }
-
-    handleDownKey = () => {
-        if (this.cursors.shift.isDown) {
-            let updated = this.editorState.activeOption + 1
-            updated = updated > allowedSprites.length - 1 ? 0 : updated
-            this.updateOptionSelection(updated)
-        } else {
-            const currentSprite = this.sprites[this.editorState.activeCursor]
-            currentSprite.setY(currentSprite.y + SCROLL_FACTOR)
-        }
-    }
-
-    handleSpace = () => {
-        const currentSprite = this.sprites[this.editorState.activeCursor]
-        this.createSprite({ x: currentSprite.x, y: currentSprite.y,key: allowedSprites[this.editorState.activeOption] })
-        
+    handleAddNewSprite =() => {
+        const sprite = this.createSprite({ x: this.input.mousePointer.worldX, y: this.input.mousePointer.worldY, key:allowedSprites[this.editorState.activeOption]})
+        this.updateSpriteSelection(sprite)
     }
 
     create(){
         super.create()
-        this.selectionText = this.add.text(window.innerWidth/2, 550,'').setDepth(1000).setScrollFactor(0)
-        this.add.text(20, 20, 'Controls:  \n[Shift?] + [Arrow Keys] to move around\n[Space] to add items').setDepth(1000).setScrollFactor(0)
+        this.selectionText = this.add.text(window.innerWidth/2 - 150, 555,'').setDepth(1000).setScrollFactor(0).setInteractive().on('pointerdown', this.handleAddNewSprite).setBackgroundColor('black')
+        this.add.text(window.innerWidth / 2 - 170, 555, '<').setDepth(1500).setScrollFactor(0).setInteractive().on('pointerdown', () => this.updateOptionSelection(-1)).setBackgroundColor('black')
+        this.add.text(window.innerWidth / 2 + 120, 555, '>').setDepth(1500).setScrollFactor(0).setInteractive().on('pointerdown', () => this.updateOptionSelection(+1)).setBackgroundColor('black')
         this.updateOptionSelection(0)
         this.createSprite(this.levelLayout.playerStart, true)
         this.createSprite(this.levelLayout.finish, true)
-        
-        this.updateSpriteSelection(0)
-        this.cursors.left.addListener('up', this.handleLeftKey)
-        this.cursors.right.addListener('up', this.handleRightKey)
-        this.cursors.up.addListener('up', this.handleUpKey)
-        this.cursors.down.addListener('up', this.handleDownKey)
-        this.cursors.space.addListener('up', this.handleSpace)
+        this.updateSpriteSelection(null)
+        this.input.mouse.enabled = true
     }
 
     update(){
-        const cursor = this.cursors
-        if (cursor.left.isDown){
-            
-        } else if (cursor.right.isDown){
-            
+        this.editorState.activeCursor && this.editorState.activeCursor.setX(this.input.mousePointer.worldX).setY(this.input.mousePointer.worldY)
+        if (this.editorState.activeCursor && this.physics.world.bounds.width < this.input.mousePointer.worldX + 10) {
+            console.log('expanding')
+            this.physics.world.setBounds(0, 0, this.physics.world.bounds.width + 100, this.physics.world.bounds.height)
+            this.cameras.main.setBounds(0, 0, this.physics.world.bounds.width + 100, this.physics.world.bounds.height);
         }
+        
     }
-    
 }

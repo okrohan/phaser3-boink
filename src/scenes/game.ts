@@ -169,6 +169,7 @@ export class GameScene extends Phaser.Scene {
         this.createLevel()
         this.createPlayer()
         this.initPlayerInteractors()   
+        this.input.mouse.onMouseOver()
     }
 
 
