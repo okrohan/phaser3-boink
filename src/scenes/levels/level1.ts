@@ -5,7 +5,7 @@ const {GROUND} = ASSETS_NAMES
 export default {
     width: 5000,
     height: 768,
-    time: 300,
+    time: 250,
     minScore: 1,
     playerStart: {
         x: 50,

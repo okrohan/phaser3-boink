@@ -61,6 +61,8 @@ export class GameScene extends Phaser.Scene {
             ASSET_WIDTH_MAPPING.GROUND[key] && this.load.spritesheet(key, `assets/${ASSETS_NAMES.GROUND.GROUND}.png`, { frameWidth: ASSET_WIDTH_MAPPING.GROUND[key] })
         })
         this.load.audio('background_music', 'assets/background_music.mp3')
+        this.load.audio('jump_music', 'assets/jump.wav')
+        this.load.audio('coin_music', 'assets/coin.mp3')
     }
 
     private handleWorldCollision = () => {        
@@ -70,8 +72,11 @@ export class GameScene extends Phaser.Scene {
     }
     
     private handleDeath = () => {
+        if (!this.gameState.gameStarted)
+            return
         this.gameState = {}
-        this.cameras.main.shake(300, 0.05, true, (_cam, prog) => {
+        this.cameras.main.flash(500)
+        this.cameras.main.shake(500, 0.05, true, (_cam, prog) => {
             this.initGameState()
             this.sound.stopAll()
             prog === 1 && this.scene.restart()
@@ -81,6 +86,7 @@ export class GameScene extends Phaser.Scene {
     private handleCollect = (_player, collectable) => {
         this.gameState.currentScore+=1
         this.gameState.scoreText.setText(this.getScoreText())
+        this.sound.play('coin_music', { volume: 0.2})
         collectable.destroy()
     }
 
@@ -108,8 +114,8 @@ export class GameScene extends Phaser.Scene {
             platforms.create(x, y, key).setScale(ASSET_SCALE_MAPPING[key] || 1).refreshBody()
         })
 
-        this.levelLayout.tiles.forEach(({x, x2, y, height = 150}) => 
-            platforms.add(this.add.tileSprite(x, y, x2 - x, height, ASSETS_NAMES.GROUND.GROUND))
+        this.levelLayout.tiles.forEach(({x, width, y, height = 150}) => 
+            platforms.add(this.add.tileSprite(x, y, width, height, ASSETS_NAMES.GROUND.GROUND))
         )
         
         this.collectables = this.levelLayout.collectables.map(({key, x, y}) =>  
@@ -120,7 +126,7 @@ export class GameScene extends Phaser.Scene {
             this.physics.add.sprite(x, y, key).setScale(ASSET_SCALE_MAPPING[key] || 1)
         )
         const {finish} = this.levelLayout
-        this.finish = this.physics.add.sprite(finish.x, finish.y, ASSETS_NAMES.FLAG).setScale(0.35)
+        this.finish = this.physics.add.sprite(finish.x, finish.y, ASSETS_NAMES.FLAG).setScale(ASSET_SCALE_MAPPING[ASSETS_NAMES.FLAG] || 1)
         this.enemies.push(this.finish)
         this.platforms = platforms
         
@@ -169,7 +175,6 @@ export class GameScene extends Phaser.Scene {
         this.createLevel()
         this.createPlayer()
         this.initPlayerInteractors()   
-        this.input.mouse.onMouseOver()
     }
 
 
@@ -196,10 +201,12 @@ export class GameScene extends Phaser.Scene {
         if (cursors.up.isDown && !this.gameState.playerOnGround) {            
             this.player.setVelocityY(PLAYER.VELOCITY_Y)
             this.gameState.playerOnGround = 1
+            this.sound.play('jump_music', { volume: 0.05 })
         }
         if (cursors.up.isDown && this.gameState.playerOnGround < 2 && this.player.body.velocity.y > 0) {
             this.player.setVelocityY(PLAYER.VELOCITY_Y)
             this.gameState.playerOnGround = 2
+            this.sound.play('jump_music', { volume: 0.05 })
         }
         if (cursors.left.isDown){
             this.player.setAccelerationX(-PLAYER.ACCELERATION)

@@ -8,9 +8,9 @@ export const PLAYER = {
 }
 export const ASSET_WIDTH = {
     TINY: 150,
-    SMALL: 300,
-    MEDIUM: 450,
-    LARGE: 600,
+    SMALL: 200,
+    MEDIUM: 200,
+    LARGE: 300,
     OOH_BOI: 900
 }
 
