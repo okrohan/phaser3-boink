@@ -1,6 +1,6 @@
 import { AbstractScene } from "./abstractGameScene";
 
-import { ASSETS_NAMES, ASSET_SCALE_MAPPING } from "../constants";
+import { ASSETS_NAMES, ASSET_SCALE_MAPPING, ASSET_WIDTH_MAPPING } from "../constants";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
     active: true,
@@ -23,8 +23,8 @@ const initLevelLayout = {
     },
 }
 
-const tileSprite = [ASSETS_NAMES.GROUND.GROUND]
-const platforms = [ASSETS_NAMES.GROUND.TINY, ASSETS_NAMES.GROUND.SMALL,ASSETS_NAMES.GROUND.MEDIUM]
+const tileSprite = [ASSETS_NAMES.GROUND.MEDIUM, ASSETS_NAMES.GROUND.LARGE, ASSETS_NAMES.GROUND.HUGE]
+const platforms = [ASSETS_NAMES.GROUND.TINY, ASSETS_NAMES.GROUND.SMALL]
 const enemies = [ASSETS_NAMES.SHIBA, ASSETS_NAMES.SPIKE]
 const collectables = [ASSETS_NAMES.STAR]
 const allowedSprites = [ASSETS_NAMES.GROUND.TINY, ASSETS_NAMES.GROUND.SMALL, ...tileSprite, ASSETS_NAMES.SHIBA, ASSETS_NAMES.SPIKE, ASSETS_NAMES.STAR]
@@ -36,6 +36,7 @@ export class GameEditorScene extends AbstractScene {
     selectionText: Phaser.GameObjects.Text;
     sprites: (Phaser.GameObjects.Sprite | Phaser.GameObjects.TileSprite)[];
     controls: Phaser.Cameras.Controls.SmoothedKeyControl;
+    openedWindow: Window;
     
 
     constructor(){
@@ -85,7 +86,7 @@ export class GameEditorScene extends AbstractScene {
 
     generateSprite({ x, y, key }: any) {
         if(tileSprite.includes(key)){
-            return this.add.tileSprite(x, y, 200, 150, key).setInteractive()
+            return this.add.tileSprite(x, y, ASSET_WIDTH_MAPPING.GROUND[key], 150, key).setInteractive()
         } else {
             return this.add.sprite(x, y, key).setScale(ASSET_SCALE_MAPPING[key] || 1).setInteractive()
         }
@@ -119,7 +120,7 @@ export class GameEditorScene extends AbstractScene {
             const spriteLayout = {
                 x: curr.x,
                 y: curr.y,
-                key
+                key 
             }
             if (key === ASSETS_NAMES.PLAYER){
                 acc.playerStart = spriteLayout
@@ -132,7 +133,7 @@ export class GameEditorScene extends AbstractScene {
             } else if (platforms.includes(key)) {
                 acc.platforms.push(spriteLayout)
             } else if (tileSprite.includes(key)) {
-                acc.tiles.push({...spriteLayout, width: 200})
+                acc.tiles.push({ ...spriteLayout, width: ASSET_WIDTH_MAPPING.GROUND[key]})
             }
             return acc
         }, {...initLevelLayout, platforms: [], tiles: [], enemies: [], collectables: [], time: 0}  )
@@ -143,7 +144,7 @@ export class GameEditorScene extends AbstractScene {
 
     generateAndDownload = () => {
         const val = this.generateLayout()
-        const text = 'export default ' + JSON.stringify(val, null, 2)
+        const text = '// Generated \n export default ' + JSON.stringify(val, null, 2)
         const fileName = 'level'
         const fileType = 'ts'
         var blob = new Blob([text], { type: 'ts' });
@@ -159,11 +160,12 @@ export class GameEditorScene extends AbstractScene {
     }
 
     generateAndPlay = () => {
+        this.openedWindow && this.openedWindow.close()
         const layout = this.generateLayout()
-        const openedWindow = window.open(location.href.split('?')[0])
+        this.openedWindow = window.open(location.href.split('?')[0])
         console.log('opened')
         //@ts-ignore
-        openedWindow.level = JSON.stringify(layout)
+        this.openedWindow.level = JSON.stringify(layout)
         console.log('done')
     }
 

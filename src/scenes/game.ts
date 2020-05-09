@@ -84,6 +84,8 @@ export class GameScene extends Phaser.Scene {
     }
 
     private handleCollect = (_player, collectable) => {
+        if (!this.gameState.gameStarted)
+            return
         this.gameState.currentScore+=1
         this.gameState.scoreText.setText(this.getScoreText())
         this.sound.play('coin_music', { volume: 0.2})
@@ -184,7 +186,7 @@ export class GameScene extends Phaser.Scene {
     
     private getTimeText() {
         //@ts-ignore
-        const diff = getLevel().time - (new Date(new Date() - this.gameState.gameStarted).getSeconds())
+        const diff = this.levelLayout.time - (new Date(new Date() - this.gameState.gameStarted).getSeconds())
         //@ts-ignore
         return `${parseInt(diff / 60)}:${diff%60}`
     }

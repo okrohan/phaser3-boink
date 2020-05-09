@@ -27,17 +27,8 @@ export default {
             y: 300,
             key: GROUND.TINY,
             
-        },
-        {
-            x: 1200,
-            y: 500,
-            key: GROUND.OOH_BOI,
-        },
-        {
-            x: 1500,
-            y: 300,
-            key: GROUND.OOH_BOI,
         }
+       
 ],
 tiles: [
     {

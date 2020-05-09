@@ -11,7 +11,7 @@ export const ASSET_WIDTH = {
     SMALL: 200,
     MEDIUM: 200,
     LARGE: 300,
-    OOH_BOI: 900
+    HUGE: 500
 }
 
 export  const ASSETS_NAMES = {
@@ -21,7 +21,7 @@ export  const ASSETS_NAMES = {
         SMALL: 'ground_small',
         MEDIUM: 'ground_medium',
         LARGE: 'ground_large',
-        OOH_BOI: 'ground_ohh_boi'
+        HUGE: 'ground_huge'
     },
     PLAYER: 'player',
     SPIKE: 'spike',
@@ -36,7 +36,7 @@ export const ASSET_WIDTH_MAPPING = {
         [ASSETS_NAMES.GROUND.SMALL]: ASSET_WIDTH.SMALL,
         [ASSETS_NAMES.GROUND.MEDIUM]: ASSET_WIDTH.MEDIUM,
         [ASSETS_NAMES.GROUND.LARGE]: ASSET_WIDTH.LARGE,
-        [ASSETS_NAMES.GROUND.OOH_BOI]: ASSET_WIDTH.OOH_BOI
+        [ASSETS_NAMES.GROUND.HUGE]: ASSET_WIDTH.HUGE
     }
 }
 
@@ -46,7 +46,7 @@ export const ASSET_SCALE_MAPPING = {
     [ASSETS_NAMES.GROUND.SMALL]: 0.2,
     [ASSETS_NAMES.GROUND.MEDIUM]: 0.2,
     [ASSETS_NAMES.GROUND.LARGE]: 0.2,
-    [ASSETS_NAMES.GROUND.OOH_BOI]: 0.2,
+    [ASSETS_NAMES.GROUND.HUGE]: 0.2,
     [ASSETS_NAMES.PLAYER]: 0.25,
     [ASSETS_NAMES.SHIBA]: 0.5,
     [ASSETS_NAMES.STAR]: 0.15,

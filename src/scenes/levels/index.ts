@@ -7,7 +7,6 @@ export const getLevel = () => {
     // invertYs(cloned)
     //@ts-ignore
     const expLevel = window.level
-    console.log(expLevel)
     if (expLevel)
         return JSON.parse(expLevel)
     return leveld
