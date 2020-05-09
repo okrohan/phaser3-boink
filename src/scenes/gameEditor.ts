@@ -76,8 +76,11 @@ export class GameEditorScene extends AbstractScene {
         if (this.editorState.activeCursor && !restrictedSprites.includes((this.editorState.activeCursor.data.get('key')))){
             this.editorState.activeCursor.destroy()
             this.editorState.activeCursor = null
+            this.refreshAlphas()
+        } else {
+            console.log('Moo')
+            this.handleAddNewSprite()
         }
-        this.refreshAlphas()
     }
 
     generateSprite({ x, y, key }: any) {
@@ -172,7 +175,7 @@ export class GameEditorScene extends AbstractScene {
         this.add.text(window.innerWidth / 2 + 120, 555, '>').setDepth(1500).setScrollFactor(0).setInteractive().on('pointerdown', () => this.updateOptionSelection(+1)).setBackgroundColor('black')
         this.add.text(window.innerWidth - 100, 50, 'Download').setDepth(1500).setScrollFactor(0).setInteractive().on('pointerdown', this.generateAndDownload).setBackgroundColor('black')
         this.add.text(window.innerWidth - 200, 50, 'Play').setDepth(1500).setScrollFactor(0).setInteractive().on('pointerdown', this.generateAndPlay).setBackgroundColor('black')
-        this.add.text(50, 50, 'Arrow to move camera \n \'Space\' to remove  ').setDepth(1500).setScrollFactor(0)
+        this.add.text(50, 50, 'Controls:\n-Arrow to move camera \n-Space to add/remove selected item').setDepth(1500).setScrollFactor(0)
         this.cursors.space.addListener('up', this.removeSelected)
         this.updateOptionSelection(0)
         this.createSprite(this.levelLayout.playerStart, true)
