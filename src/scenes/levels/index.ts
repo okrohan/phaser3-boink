@@ -1,5 +1,6 @@
 import l1 from './1'
-const levels = [l1]
+import l2 from './2'
+const levels = [l1, l2]
 export const getLevel = () => {
     //@ts-ignore
     const expLevel = window.level
@@ -11,9 +12,9 @@ export const getLevel = () => {
         try {
             const state = JSON.parse(userGameState)    
             return {
-                lives: state.lives,
+                lives: state.lives || 3,
                 level: levels[state.level || 0],
-                score: state.score
+                score: state.score || 0
             }
         } catch (error) {
             

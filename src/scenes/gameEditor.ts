@@ -171,7 +171,7 @@ export class GameEditorScene extends AbstractScene {
         this.openedWindow = window.open(location.href.split('?')[0])
         console.log('opened')
         //@ts-ignore
-        this.openedWindow.level = JSON.stringify(layout)
+        this.openedWindow && (this.openedWindow.level = JSON.stringify(layout))
         console.log('done')
     }
 

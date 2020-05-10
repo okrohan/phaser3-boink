@@ -77,7 +77,25 @@ export class GameScene extends Phaser.Scene {
         if (!this.gameState.gameStarted)
             return
         if(this.gameState.currentScore === this.collectables.length){
-            this.handleDeath()
+            const state: any = localStorage.getItem('userGameState') && JSON.parse(localStorage.getItem('userGameState')) || {
+                lives: 3,
+                level:  0,
+                score: 0
+            }
+            if(state.level > 0) {
+                alert('Thats all folks!')
+                localStorage.removeItem('userGameState')  
+            } else {
+                alert('Congrats!')
+                state.score += this.gameState.totalScore
+                state.level += 1
+                localStorage.setItem('userGameState', JSON.stringify(state))
+                
+            }
+            this.initGameState()
+            this.sound.stopAll()
+            this.scene.restart()
+            
         }
         
     }
