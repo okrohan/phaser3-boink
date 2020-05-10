@@ -28,7 +28,9 @@ export class GameScene extends Phaser.Scene {
         this.gameState = {
             gameStarted: false,
             playerOnGround: 0,
+            totalScore: 0,
             currentScore: 0,
+            currentLives: 0,
             timeText: null,
             livesText: null,
         }
@@ -53,7 +55,7 @@ export class GameScene extends Phaser.Scene {
             progress.destroy();
             progressText.destroy()
         });
-        this.levelLayout = getLevel()
+        
         Object.keys(ASSETS_NAMES).forEach((item) => 
             this.load.image(item.toLowerCase(), `assets/${item.toLowerCase()}.png`)
         )
@@ -69,6 +71,15 @@ export class GameScene extends Phaser.Scene {
         if(this.player.body.blocked.down){
             this.handleDeath()
         }
+    }
+
+    private handleWin = () => {
+        if (!this.gameState.gameStarted)
+            return
+        if(this.gameState.currentScore === this.collectables.length){
+            this.handleDeath()
+        }
+        
     }
     
     private handleDeath = () => {
@@ -87,6 +98,7 @@ export class GameScene extends Phaser.Scene {
         if (!this.gameState.gameStarted)
             return
         this.gameState.currentScore+=1
+        this.gameState.totalScore += 100
         this.gameState.scoreText.setText(this.getScoreText())
         this.sound.play('coin_music', { volume: 0.2})
         collectable.destroy()
@@ -129,12 +141,12 @@ export class GameScene extends Phaser.Scene {
         )
         const {finish} = this.levelLayout
         this.finish = this.physics.add.sprite(finish.x, finish.y, ASSETS_NAMES.FLAG).setScale(ASSET_SCALE_MAPPING[ASSETS_NAMES.FLAG] || 1)
-        this.enemies.push(this.finish)
         this.platforms = platforms
         
         this.physics.add.collider(this.enemies, this.platforms);
         this.physics.add.collider(this.collectables, this.platforms);
         this.physics.add.collider(this.enemies, this.collectables);
+        this.physics.add.collider(this.finish, this.platforms);
         this.physics.add.collider(clouds, clouds, (c1) => 
             c1.destroy()
          )
@@ -153,6 +165,7 @@ export class GameScene extends Phaser.Scene {
         this.physics.world.on('worldbounds', this.handleWorldCollision)
         this.physics.add.collider(this.player, this.platforms, this.handleGroundCollide);
         this.physics.add.collider(this.player, this.enemies, this.handleDeath);
+        this.physics.add.overlap(this.player, this.finish, this.handleWin);
         this.physics.add.overlap(this.player, this.collectables,this.handleCollect)
         // Camera
         this.cameras.main.startFollow(this.player, true, 1, 1);
@@ -163,14 +176,20 @@ export class GameScene extends Phaser.Scene {
             this.gameState.gameStarted = new Date()
             texts.forEach((text) => text.destroy())
             this.gameState.timeText = this.add.text(window.innerWidth - 100, 50, this.getTimeText(), { fontSize: 20, fontStyle: 'bold', stroke: 'black', strokeThickness: 2, fill: 'white' }).setScrollFactor(0)
-            this.gameState.livesText = this.add.text(window.innerWidth - 100, 20, '❤ 3', { fontSize: 20, fontStyle: 'bold', stroke: 'black', strokeThickness: 2, fill: 'white' }).setScrollFactor(0)
-            this.gameState.scoreText = this.add.text(20, 20, this.getScoreText(), { fontSize: 20, fontStyle: 'bold', stroke: 'black', strokeThickness: 2, fill: 'white' }).setScrollFactor(0)
+            
             this.sound.play('background_music', {loop: true, volume: 0.5})
             this.cursors.space.removeListener('up')
         })
     }
 
     public create() {
+        const { level, lives, score } = getLevel()
+        this.levelLayout = level
+        this.gameState.currentScore = 0
+        this.gameState.totalScore = score
+        this.gameState.currentLives = lives
+        this.gameState.scoreText = this.add.text(20, 20, this.getScoreText(), { fontSize: 20, fontStyle: 'bold', stroke: 'black', strokeThickness: 2, fill: 'white' }).setScrollFactor(0)
+        this.gameState.livesText = this.add.text(window.innerWidth - 100, 20, this.getLivesText(), { fontSize: 20, fontStyle: 'bold', stroke: 'black', strokeThickness: 2, fill: 'white' }).setScrollFactor(0)
         this.cameras.main.setBounds(0, 0, this.levelLayout.width, this.scale.height);
         this.physics.world.setBounds(0, 0, this.levelLayout.width, this.scale.height );
         this.cursors = this.input.keyboard.createCursorKeys()
@@ -180,8 +199,11 @@ export class GameScene extends Phaser.Scene {
     }
 
 
-    private handleGroundCollide = () => {
+    private handleGroundCollide = (arg1,arg2) => {
+        // Allow ledge jump        
+        if ((arg2.body.y + arg2.body.height) > (arg1.body.y))
         this.gameState.playerOnGround = 0
+        
     }
     
     private getTimeText() {
@@ -192,7 +214,11 @@ export class GameScene extends Phaser.Scene {
     }
 
     private getScoreText() {
-        return `Score : ${this.gameState.currentScore || 0}/${this.collectables.length}`
+        return `Score : ${this.gameState.totalScore || 0}`
+    }
+
+    private getLivesText(){
+        return `❤ ${this.gameState.currentLives}`
     }
 
 

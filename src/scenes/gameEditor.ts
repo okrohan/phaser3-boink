@@ -138,7 +138,13 @@ export class GameEditorScene extends AbstractScene {
             return acc
         }, {...initLevelLayout, platforms: [], tiles: [], enemies: [], collectables: [], time: 0}  )
         console.log('\n\n\n====',JSON.stringify(value, null, 2))
-        value.time = (value.collectables.length * 20) + 60
+        try{
+            value.time = parseInt(prompt('Level time (in seconds)?'))
+        }
+        catch(e){
+            value.time = 120
+        }
+    
         return value
     }
 
