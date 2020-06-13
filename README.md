@@ -1,7 +1,7 @@
 # BOINK [2d Platformer Powered by Phaser]
-## PLAY: oknagisa.github.io/boink
-## Level: Editor: oknagisa.github.io/boink?editor=true
-## Debug: oknagisa.github.io/boink?debug=true
+## PLAY: https://oknagisa.github.io/boink
+## Level: Editor: https://oknagisa.github.io/boink?editor=true
+## Debug: https://oknagisa.github.io/boink?debug=true
 
 # Credits
 ### MS-Paint :P
